@@ -213,6 +213,7 @@ int main(void) {
     }
 
     printf("Success. Result: %d", sum);
+    long_list_destroy(&long_list);
 
     return 0;
 }
