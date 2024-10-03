@@ -136,7 +136,6 @@ typedef enum {
     GET_LONGS_MULTIPLE_SIGNS_IN_A_ROW,
 } GetLongsError;
 
-// Returns `false` if something else other than whitespace, a digit, or a +/- sign was encountered.
 GetLongsError get_longs(LongList *long_list) {
     String curr_str = string_create();
     char last_char = '0';
