@@ -45,89 +45,6 @@ void long_list_destroy(const LongList *long_list) {
     free(long_list->longs);
 }
 
-typedef struct {
-    char *chars;
-    size_t length;
-    size_t capacity;
-} String;
-
-String string_create() {
-    String str;
-
-    str.capacity = 30;
-    str.length = 0;
-    str.chars = malloc(str.capacity * sizeof(char));
-
-    return str;
-}
-
-// Returns `false` if the list could not be reallocated.
-bool string_push(String *str, const char c) {
-    const size_t length = str->length;
-    const size_t capacity = str->capacity;
-
-    if (length >= capacity) {
-        const size_t new_capacity = (capacity * 2) + 1;
-        char *temp_ptr = realloc(str->chars, new_capacity * sizeof(char));
-
-        if (temp_ptr == nullptr) {
-            return false;
-        }
-
-        str->capacity = new_capacity;
-        str->chars = temp_ptr;
-    }
-
-    str->chars[length] = c;
-    str->length++;
-
-    return true;
-}
-
-// Returns `false` if the index is out of bounds.
-bool string_remove(String *str, const size_t i) {
-    if (i >= str->length) {
-        return false;
-    }
-
-    for (size_t j = i; j < str->length - 1; j++) {
-        str->chars[j] = str->chars[j + 1];
-    }
-
-    str->length--;
-    return true;
-}
-
-bool string_contains(const String *str, char c) {
-    for (int i = 0; i < str->length; i++) {
-        if (str->chars[i] == c) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-// Returns `false` if there was a conversion error.
-bool string_to_long(const String *str, long *l) {
-    errno = 0;
-    char *end_ptr;
-
-    *l = strtol(str->chars, &end_ptr, 10);
-
-    errno = 0;
-
-    if (errno != 0) {
-        return false;
-    }
-
-    return true;
-}
-
-void string_destroy(const String *str) {
-    free(str->chars);
-}
-
 typedef enum {
     GET_LONGS_SUCCESS,
     // Non-whitespace, non-digit, non-sign
@@ -137,34 +54,32 @@ typedef enum {
 } GetLongsError;
 
 GetLongsError get_longs(LongList *long_list) {
-    String curr_str = string_create();
     char last_char = '0';
+    int sign = 1;
+    long curr_n = 0;
 
     while (true) {
         const char c = (char)getchar();
 
-        if (c == '\n') {
+        if (c == '\n' || c == EOF) {
             break;
         }
 
         if (isdigit(c)) {
-            string_push(&curr_str, c);
+            curr_n = curr_n * 10 + (c - '0');
         } else if (c == '+' || c == '-') {
             if (last_char == '+' || last_char == '-') {
                 return GET_LONGS_MULTIPLE_SIGNS_IN_A_ROW;
             }
 
-            long l;
+            long_list_push(long_list, curr_n * sign);
+            curr_n = 0;
 
-            if (!string_to_long(&curr_str, &l)) {
-                return GET_LONGS_STRING_TO_LONG_ERROR;
+            if (c == '+') {
+                sign = 1;
+            } else {
+                sign = -1;
             }
-
-            string_destroy(&curr_str);
-            long_list_push(long_list, l);
-
-            curr_str = string_create();
-            string_push(&curr_str, c);
         } else if (!isspace(c)) {
             return GET_LONGS_INVALID_CHARACTER_ENCOUNTERED;
         }
@@ -172,14 +87,7 @@ GetLongsError get_longs(LongList *long_list) {
         last_char = c;
     }
 
-    long l;
-
-    if (!string_to_long(&curr_str, &l)) {
-        return GET_LONGS_STRING_TO_LONG_ERROR;
-    }
-
-    string_destroy(&curr_str);
-    long_list_push(long_list, l);
+    long_list_push(long_list, curr_n);
 
     for (size_t i = 0; i < long_list->length; i++) {
         printf("n[%zu] %ld\n", i, long_list->longs[i]);
