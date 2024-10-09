@@ -211,7 +211,7 @@ int main(void) {
         sum += long_list.longs[i];
     }
 
-    printf("Success. Result: %d", sum);
+    printf("Success. Result: %ld", sum);
     long_list_destroy(&long_list);
 
     return 0;
