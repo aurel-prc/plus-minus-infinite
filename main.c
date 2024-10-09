@@ -141,7 +141,7 @@ GetLongsError get_longs(LongList *long_list) {
     char last_char = '0';
 
     while (true) {
-        const char c = getchar();
+        const char c = (char)getchar();
 
         if (c == '\n') {
             break;
@@ -182,7 +182,7 @@ GetLongsError get_longs(LongList *long_list) {
     long_list_push(long_list, l);
 
     for (size_t i = 0; i < long_list->length; i++) {
-        printf("n[%zu] %d\n", i, long_list->longs[i]);
+        printf("n[%zu] %ld\n", i, long_list->longs[i]);
     }
 
     return GET_LONGS_SUCCESS;
