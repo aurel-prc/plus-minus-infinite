@@ -49,7 +49,6 @@ typedef enum {
     GET_LONGS_SUCCESS,
     // Non-whitespace, non-digit, non-sign
     GET_LONGS_INVALID_CHARACTER_ENCOUNTERED,
-    GET_LONGS_STRING_TO_LONG_ERROR,
     GET_LONGS_MULTIPLE_SIGNS_IN_A_ROW,
 } GetLongsError;
 
@@ -87,7 +86,7 @@ GetLongsError get_longs(LongList *long_list) {
         last_char = c;
     }
 
-    long_list_push(long_list, curr_n);
+    long_list_push(long_list, curr_n * sign);
 
     for (size_t i = 0; i < long_list->length; i++) {
         printf("n[%zu] %ld\n", i, long_list->longs[i]);
@@ -97,19 +96,18 @@ GetLongsError get_longs(LongList *long_list) {
 }
 
 int main(void) {
+    printf("Enter numbers with + or - between them:");
+
     LongList long_list = long_list_create();
 
     switch (get_longs(&long_list)) {
         case GET_LONGS_SUCCESS:
             break;
         case GET_LONGS_INVALID_CHARACTER_ENCOUNTERED:
-            printf("Invalid character encountered\n");
-            return -1;
-        case GET_LONGS_STRING_TO_LONG_ERROR:
-            printf("Couldn't convert to number\n");
+            printf("Error: Invalid character encountered (non-whitespace, non-digit, non-sign).\n");
             return -1;
         case GET_LONGS_MULTIPLE_SIGNS_IN_A_ROW:
-            printf("Multiple signs (+ or -) in a row.\n");
+            printf("Error: Multiple signs (+ or -) in a row.\n");
             return -1;
     }
 
@@ -119,7 +117,7 @@ int main(void) {
         sum += long_list.longs[i];
     }
 
-    printf("Success. Result: %ld", sum);
+    printf("\nResult: %ld", sum);
     long_list_destroy(&long_list);
 
     return 0;
