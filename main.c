@@ -9,14 +9,9 @@ int main(void) {
     int sign = 1;
     long curr_n = 0;
     long sum = 0;
+    char c;
 
-    while (true) {
-        const char c = (char)getchar();
-
-        if (c == '\n' || c == EOF) {
-            break;
-        }
-
+    while ((c = (char)getchar()) != '\n') {
         if (isdigit(c)) {
             curr_n = curr_n * 10 + (c - '0');
         } else if (c == '+' || c == '-') {
